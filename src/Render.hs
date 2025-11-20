@@ -23,19 +23,19 @@ renderGame w = pictures (renderWall : renderPlayer : renderEnemies ++ renderBull
     wallPath = [ (x_wall, y_wall), (-x_wall, y_wall), (-x_wall, -y_wall), (x_wall, -y_wall) ] 
     renderWall = color white (lineLoop wallPath)
     
-    -- JUGADOR
+    --JUGADOR
     (px, py) = pPos (player w)
     renderPlayer = translate px py $ color cyan $ circleSolid 10
                   
-    -- BALAS
+    --BALAS
     renderBullets = map drawBullet (bullets w)
     drawBullet b = let (bx, by) = bPos b in translate bx by $ color yellow $ circleSolid 3
 
-    -- POWERUPS
+    --POWERUPS
     renderPowerUps = map drawPowerUp (powerups w)
     drawPowerUp pu = let (pux, puy) = puPos pu in translate pux puy $ color green $ circleSolid 8 
 
-    -- ENEMIGOS
+    --ENEMIGOS
     renderEnemies = map drawEnemy (enemies w)
     drawEnemy e = 
         let (ex, ey) = ePos e
