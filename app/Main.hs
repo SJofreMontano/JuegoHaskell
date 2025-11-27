@@ -21,15 +21,14 @@ initialState gen = World
   , time       = 0
   , rng        = gen
   , spawnTimer = 1.0
-  , puSpawnTimer = 5.0    
-  , scene      = Menu                                                                           
+  , puSpawnTimer = 5.0          
+  , scene = Menu                                                              
   }
 
 --Funcion principal
 main :: IO ()
 main = do
-    gen <- getStdGen
-   
+    gen <- getStdGen -- Obtiene la semilla de aleatoriedad
     play window 
          background 
          fps 

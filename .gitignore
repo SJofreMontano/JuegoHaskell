@@ -1,0 +1,14 @@
+# Archivos generados por Cabal/GHC
+dist/
+dist-newstyle/
+.cabal-sandbox/
+cabal-state/
+.stack-work/
+*.o
+*.hi
+*.dyn_hi
+*.dyn_o
+*~
+
+# Archivos del editor
+.vscode/
