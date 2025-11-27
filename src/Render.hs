@@ -18,8 +18,8 @@ renderGame :: World -> Picture
 renderGame w = pictures (renderWall : renderPlayer : renderEnemies ++ renderBullets ++ renderPowerUps ++ [renderPowerUpIndicator w])
   where
     -- MURO REDUCIDO
-    x_wall = 1200 / 2
-    y_wall = 640 / 2
+    x_wall = 1260 / 2
+    y_wall = 700 / 2
     wallPath = [ (x_wall, y_wall), (-x_wall, y_wall), (-x_wall, -y_wall), (x_wall, -y_wall) ] 
     renderWall = color white (lineLoop wallPath)
     
@@ -59,5 +59,5 @@ renderPowerUpIndicator w =
         indicatorColor = if pHasPowerUp p then green else greyN 0.3
         indicatorSize  = 30                                         
         indicatorX = 0                                              
-        indicatorY = -(720 / 2) + (indicatorSize / 2) + 10          
+        indicatorY = -(800 / 2) + (indicatorSize / 2) + 10          
     in translate indicatorX indicatorY $ color indicatorColor $ rectangleSolid indicatorSize indicatorSize

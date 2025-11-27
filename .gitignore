@@ -1,14 +1,28 @@
-# Archivos generados por Cabal/GHC
-dist/
-dist-newstyle/
-.cabal-sandbox/
+# Archivos y directorios de Cabal/Stack
+/dist-newstyle/
+/dist/
 cabal-state/
-.stack-work/
+cabal.project.local
+
+# Build artifacts (artefactos de compilación)
 *.o
 *.hi
 *.dyn_hi
 *.dyn_o
-*~
+*.tix
 
-# Archivos del editor
+# Executables (Ejecutables)
+*.exe
+/app/Juego # Si el ejecutable se llama 'Juego' y se genera en /app/
+# Si tu Make.file genera el ejecutable en otra ruta, añádela aquí
+
+# Archivos de la librería (si usas la carpeta src)
+*.a
+*.so
+*.dylib
+libHS*
+
+# Entornos de desarrollo
 .vscode/
+.hie/
+.ghci
