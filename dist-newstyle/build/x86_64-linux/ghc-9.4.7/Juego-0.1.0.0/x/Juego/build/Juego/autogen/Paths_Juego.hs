@@ -1,5 +1,8 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE NoRebindableSyntax #-}
+#if __GLASGOW_HASKELL__ >= 810
+{-# OPTIONS_GHC -Wno-prepositive-qualified-module #-}
+#endif
 {-# OPTIONS_GHC -fno-warn-missing-import-lists #-}
 {-# OPTIONS_GHC -w #-}
 module Paths_Juego (
@@ -41,13 +44,14 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 
+
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "/home/chago/.cabal/bin"
-libdir     = "/home/chago/.cabal/lib/x86_64-linux-ghc-9.4.7/Juego-0.1.0.0-inplace-Juego"
-dynlibdir  = "/home/chago/.cabal/lib/x86_64-linux-ghc-9.4.7"
-datadir    = "/home/chago/.cabal/share/x86_64-linux-ghc-9.4.7/Juego-0.1.0.0"
-libexecdir = "/home/chago/.cabal/libexec/x86_64-linux-ghc-9.4.7/Juego-0.1.0.0"
-sysconfdir = "/home/chago/.cabal/etc"
+bindir     = "/root/.cabal/bin"
+libdir     = "/root/.cabal/lib/x86_64-linux-ghc-9.4.7/Juego-0.1.0.0-inplace-Juego"
+dynlibdir  = "/root/.cabal/lib/x86_64-linux-ghc-9.4.7"
+datadir    = "/root/.cabal/share/x86_64-linux-ghc-9.4.7/Juego-0.1.0.0"
+libexecdir = "/root/.cabal/libexec/x86_64-linux-ghc-9.4.7/Juego-0.1.0.0"
+sysconfdir = "/root/.cabal/etc"
 
 getBinDir     = catchIO (getEnv "Juego_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "Juego_libdir")     (\_ -> return libdir)
@@ -55,7 +59,6 @@ getDynLibDir  = catchIO (getEnv "Juego_dynlibdir")  (\_ -> return dynlibdir)
 getDataDir    = catchIO (getEnv "Juego_datadir")    (\_ -> return datadir)
 getLibexecDir = catchIO (getEnv "Juego_libexecdir") (\_ -> return libexecdir)
 getSysconfDir = catchIO (getEnv "Juego_sysconfdir") (\_ -> return sysconfdir)
-
 
 
 

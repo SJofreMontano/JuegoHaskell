@@ -4,7 +4,7 @@ import Graphics.Gloss
 import Types
 import Menu (renderMenu) -- Necesario para dibujar el menú
 import Config (window) 
-
+import Graphics.Gloss.Juicy (loadJuicyPNG)
 --Cambio de escena
 render :: World -> Picture
 render w = 
@@ -25,7 +25,9 @@ renderGame w = pictures (renderWall : renderPlayer : renderEnemies ++ renderBull
     
     --JUGADOR
     (px, py) = pPos (player w)
-    renderPlayer = translate px py $ color cyan $ circleSolid 10
+    renderPlayer = case playerSprite w of
+        Just pic -> translate px py pic
+        Nothing  -> translate px py $ color cyan $ circleSolid 10
                   
     --BALAS
     renderBullets = map drawBullet (bullets w)

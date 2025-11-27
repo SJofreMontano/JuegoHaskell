@@ -1,4 +1,3 @@
-
 --Tipos de datos que se usan en el juego
 module Types (
     Pos, Vel,
@@ -13,6 +12,7 @@ module Types (
 ) where
 
 import System.Random (StdGen)
+import Graphics.Gloss (Picture)
 
 type Pos = (Float, Float)
 type Vel = (Float, Float)
@@ -54,10 +54,11 @@ data World = World
   { player     :: Player
   , enemies    :: [Enemy]
   , bullets    :: [Bullet]
-  , powerups   :: [PowerUp]                
-  , time       :: Float   
-  , rng        :: StdGen  
-  , spawnTimer :: Float 
-  , puSpawnTimer :: Float     
-  , scene :: Scene            
+  , powerups   :: [PowerUp]
+  , time       :: Float
+  , rng        :: StdGen
+  , spawnTimer :: Float
+  , puSpawnTimer :: Float
+  , scene      :: Scene
+  , playerSprite :: Maybe Picture -- Nuevo campo para el sprite
   }

@@ -1,0 +1,8 @@
+-- filepath: c:\Users\caski\OneDrive\Escritorio\juegoParadigma\JuegoHaskell\.gitignore
+dist/
+dist-newstyle/
+cabal.project.local
+*.hi
+*.o
+*.exe
+*.out
