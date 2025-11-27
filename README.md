@@ -26,6 +26,14 @@ Para compilar y ejecutar este proyecto, necesitas el entorno de Haskell y las li
 ```bash
 sudo apt install freeglut3-dev
 ```
+
+## Compilación y ejecución del juego
+
+Dentro de la carpeta juego, usamos el comando make run para compilar y ejecutar el juego.
+```bash
+make run
+```
+
 ## Controles del juego
 
 | Acción | Tecla | Notas |
