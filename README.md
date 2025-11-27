@@ -25,8 +25,9 @@ Para compilar y ejecutar este proyecto, necesitas el entorno de Haskell y las li
 **Instalación de librerías en Linux (Obligatorio):**
 ```bash
 sudo apt install freeglut3-dev
+```
+## Controles del juego
 
-## Controles del Juego
 | Acción | Tecla | Notas |
 | :--- | :--- | :--- |
 | **Iniciar Juego** | **ENTER** | Necesario para salir de la pantalla de menú. |
