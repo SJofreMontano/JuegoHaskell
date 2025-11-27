@@ -1,8 +1,8 @@
-# 🕹️ HASKELL SURVIVORS: State Monad Edition
+# HASKELL SURVIVORS: State Monad Edition
 
-Juego estilo **Action RPG / Reverse Bullet Hell** (similar a Vampire Survivors), implementado completamente en **Haskell** utilizando la librería `gloss` y la arquitectura de la **Mónada `State`** para el manejo inmutable y secuencial del estado del juego.
+Juego estilo **Action RPG / Reverse Bullet Hell**, implementado completamente en **Haskell** utilizando la librería `gloss` y la arquitectura de la **Mónada `State`** para el manejo inmutable y secuencial del estado del juego.
 
-### ✨ Características Implementadas
+### Características Implementadas
 
 * **Arquitectura Funcional:** Uso de `Control.Monad.State` para manejar la lógica de actualización del juego de manera secuencial y legible.
 * **Modularización:** Código dividido en módulos (`Types`, `Logic`, `Render`, `Input`) para facilitar la escalabilidad.
@@ -14,7 +14,7 @@ Juego estilo **Action RPG / Reverse Bullet Hell** (similar a Vampire Survivors),
 
 ---
 
-## 🛠️ Requisitos del Sistema
+## Requisitos del Sistema
 
 Para compilar y ejecutar este proyecto, necesitas el entorno de Haskell y las librerías de gráficos de tu sistema operativo.
 
@@ -25,3 +25,11 @@ Para compilar y ejecutar este proyecto, necesitas el entorno de Haskell y las li
 **Instalación de librerías en Linux (Obligatorio):**
 ```bash
 sudo apt install freeglut3-dev
+
+## Controles del Juego
+| Acción | Tecla | Notas |
+| :--- | :--- | :--- |
+| **Iniciar Juego** | **ENTER** | Necesario para salir de la pantalla de menú. |
+| **Movimiento** | **W, A, S, D** | Permite movimiento diagonal constante. |
+| **Disparo** | **Flechas** (↑ ↓ ← →) | Disparo manual en la dirección de la flecha. |
+| **Activar Power-Up** | **ESPACIO** | Consume el Power-Up coleccionado (círculo verde). |
