@@ -3,6 +3,14 @@
 /dist/
 cabal-state/
 cabal.project.local
+.cache/
+*.hi
+*.o
+.stack-work/
+build/
+.cache/
+.autogen/
+
 
 # Build artifacts (artefactos de compilación)
 *.o
