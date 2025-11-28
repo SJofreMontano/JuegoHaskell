@@ -14,7 +14,6 @@ cabal.project.local
 # Executables (Ejecutables)
 *.exe
 /app/Juego # Si el ejecutable se llama 'Juego' y se genera en /app/
-# Si tu Make.file genera el ejecutable en otra ruta, añádela aquí
 
 # Archivos de la librería (si usas la carpeta src)
 *.a
