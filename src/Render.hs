@@ -26,7 +26,6 @@ renderTime world =
 
 --Render del juego cuando se esta Playing
 renderGame :: World -> Picture
-
 renderGame w = pictures (renderWall : renderHealth w : renderPlayer : renderEnemies ++ renderBullets ++ renderPowerUps ++ [renderPowerUpIndicator w, renderTime w])
   where
     -- MURO REDUCIDO
