@@ -51,19 +51,16 @@ renderGame w = pictures (renderWall : renderHealth w : renderPlayer : renderEnem
 
     --ENEMIGOS
     renderEnemies = map drawEnemy (enemies w)
-    drawEnemy e = 
+    drawEnemy e =
         let (ex, ey) = ePos e
-            eColor   = enemyColor (eType e)
-            eSize    = enemySize (eType e)
-        in translate ex ey $ color eColor $ circleSolid eSize
-
-    enemyColor :: EnemyType -> Color
-    enemyColor Grunt = red
-    enemyColor Tank  = yellow 
-
-    enemySize :: EnemyType -> Float
-    enemySize Grunt = 10
-    enemySize Tank  = 15 
+            enemySprite = case eType e of
+                Grunt -> gruntSprite w
+                Tank  -> tankSprite w
+        in case enemySprite of
+            Just pic -> translate ex ey pic
+            Nothing  -> let eColor = case eType e of { Grunt -> red; Tank -> yellow }
+                            eSize  = case eType e of { Grunt -> 10; Tank -> 15 }
+                        in translate ex ey $ color eColor $ circleSolid eSize
 
 
 --Render PowerUp

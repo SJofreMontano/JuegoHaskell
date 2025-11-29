@@ -64,4 +64,6 @@ data World = World
   , scene      :: Scene
   , playerSprite :: Maybe Picture
   , backgroundSprite :: Maybe Picture
+  , gruntSprite :: Maybe Picture
+  , tankSprite  :: Maybe Picture
   }
