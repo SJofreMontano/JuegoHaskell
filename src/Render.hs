@@ -2,7 +2,7 @@ module Render where
 
 import Graphics.Gloss
 import Types
-import Menu (renderMenu) -- Necesario para dibujar el menú
+import Menu (renderMenu)
 import Config (window) 
 import Graphics.Gloss.Juicy (loadJuicyPNG)
 --Cambio de escena
@@ -64,8 +64,6 @@ renderPowerUpIndicator w =
         indicatorX = 0                                              
         indicatorY = -(720 / 2) + (indicatorSize / 2) + 10          
     in translate indicatorX indicatorY $ color indicatorColor $ rectangleSolid indicatorSize indicatorSize
-
--- En Render.hs
 
 -- Dibuja la vida del jugador en la esquina superior izquierda
 renderHealth :: Player -> Picture
