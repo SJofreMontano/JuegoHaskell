@@ -1,8 +1,23 @@
--- filepath: c:\Users\caski\OneDrive\Escritorio\juegoParadigma\JuegoHaskell\.gitignore
-dist/
-dist-newstyle/
+# Directorios de compilación de Cabal/Stack
+/dist/
+/dist-newstyle/
+.stack-work/
+
+# Archivos de configuración local de Cabal
 cabal.project.local
-*.hi
+cabal.project.freeze
+
+# Archivos de objeto (linking) y caché
 *.o
+*.hi
+*.dyn_hi     # Archivos de enlace dinámico (causan muchos problemas)
+*.dyn_o
+
+# Archivos de prueba y temporales
+*.tix
+*.hpc
+*~
+
+# Ejecutables (Windows/Linux)
 *.exe
 *.out

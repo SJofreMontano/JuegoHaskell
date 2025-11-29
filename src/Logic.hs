@@ -1,51 +1,43 @@
 module Logic where
 
-import Data.List (partition)
 import Control.Monad.State
 import System.Random
 import Types
-import Math 
+import Math
+import Data.List (partition)
 
-
+--Actualiza el estado
 update_pure :: Float -> World -> World
 update_pure dt oldWorld = execState (update_monadic dt) oldWorld
 
---Actualiza el estado
+-- Dispatchea al Game Over o al juego normal.
 update_monadic :: Float -> State World ()
 update_monadic dt = do
     w <- get
     case scene w of
         Menu    -> return ()
+        GameOver -> return ()
         Playing -> updateGameLogic dt
 
 
 -- Secuencia Lógica Principal
 updateGameLogic :: Float -> State World ()
 updateGameLogic dt = do
-    w <- get
-    -- Si el jugador está muerto, no actualizamos la lógica del juego.
-    unless (pDead (player w)) $ do
-        movePlayer dt
-        handleSpawning dt
-        handlePowerUpSpawning dt  
-        handleShooting dt
-        moveBullets dt
-        moveEnemies dt
-        handleCollisions -- Colisiones de balas con enemigos
-        handlePlayerEnemyCollisions -- Colisiones de jugador con enemigos
-        handlePowerUpCollisions
-
-    -- Comprueba si el jugador ha muerto en este frame para cambiar la escena
-    w_after_updates <- get
-    when (pDead (player w_after_updates)) $
-        modify $ \w' -> w' { scene = GameOver }
-
+    updateInvincibility dt
+    movePlayer dt
+    handleSpawning dt
+    handlePowerUpSpawning dt  
+    handleShooting dt
+    moveBullets dt
+    moveEnemies dt
+    handleCollisions
+    handlePlayerEnemyCollision
+    handlePowerUpCollisions
     updateTime dt
 
 
 -- Funciones de Lógica Pura
 
---Esta es llamada por Input.hs
 activatePowerUp :: State World ()
 activatePowerUp = modify $ \w ->
     let p = player w
@@ -72,8 +64,8 @@ movePlayer dt = modify $ \w ->
         potentialX = px + mvx * 200 * dt
         potentialY = py + mvy * 200 * dt
         
-        x_boundary = (1200 / 2) - 10 
-        y_boundary = (640 / 2) - 10
+        x_boundary = (1260 / 2) - 10 
+        y_boundary = (700 / 2) - 10
         
         clampedX = clamp (-x_boundary) x_boundary potentialX
         clampedY = clamp (-y_boundary) y_boundary potentialY
@@ -89,8 +81,8 @@ handleSpawning dt = do
     
     if currentSpawnTimer <= 0
     then do
-        let (randX, gen1) = randomR (-580 :: Float, 580 :: Float) (rng w) 
-            (randY, gen2) = randomR (-300 :: Float, 300 :: Float) gen1 
+        let (randX, gen1) = randomR (-610 :: Float, 610 :: Float) (rng w) 
+            (randY, gen2) = randomR (-330 :: Float, 330 :: Float) gen1 
             (chance, gen3) = randomR (1 :: Int, 8 :: Int) gen2
             (newEnemy, nextRng) = if chance == 1
                 then (Enemy (randX, randY) 3 Tank, gen3) 
@@ -151,18 +143,18 @@ handleShooting dt = modify $ \w ->
 moveBullets :: Float -> State World ()
 moveBullets dt = modify $ \w ->
     let 
-        movedBullets = map (updateBullet dt) (bullets w)
+        movedBullets = map updateBullet (bullets w)
         isBulletInBounds :: Bullet -> Bool
         isBulletInBounds b = 
             let (x, y) = bPos b
-                x_bound = 1200 / 2 
-                y_bound = 640 / 2 
+                x_bound = 1260 / 2 
+                y_bound = 700 / 2 
             in x < x_bound && x > (-x_bound) && y < y_bound && y > (-y_bound)
         updatedBullets = filter (\b -> bDuration b > 0 && isBulletInBounds b) movedBullets
     in w { bullets = updatedBullets }
   where
-    updateBullet :: Float -> Bullet -> Bullet
-    updateBullet dt b = b { bPos = (x + vx * dt, y + vy * dt), 
+    updateBullet :: Bullet -> Bullet
+    updateBullet b = b { bPos = (x + vx * dt, y + vy * dt), 
                             bDuration = bDuration b - dt }
       where (x, y) = bPos b; (vx, vy) = bVel b
 
@@ -204,14 +196,27 @@ handleCollisions = modify $ \w ->
     
     in w { enemies = survivingEnemies, bullets = survivingBullets }
 
---Colision entre el jugador y los enemigos
-handlePlayerEnemyCollisions :: State World ()
-handlePlayerEnemyCollisions = modify $ \w ->
+-- Colisión Jugador-Enemigo y Lógica de Muerte
+handlePlayerEnemyCollision :: State World ()
+handlePlayerEnemyCollision = modify $ \w ->
     let p = player w
-        es = enemies w
-        (updatedPlayer, remainingEnemies) = handleEnemyCollisions p es
-    in w { player = updatedPlayer, enemies = remainingEnemies }
+        px = pPos p
+        isInvincible = pInvincibleTimer p > 0
+        collisionDist = 20.0 
+        
+        isColliding = any (\e -> mag (sub px (ePos e)) < collisionDist) (enemies w)
+        shouldTakeDamage = isColliding && not isInvincible
 
+        newHealth = if shouldTakeDamage then pHealth p - 1 else pHealth p
+        
+        newInvincibleTimer = if shouldTakeDamage then 1.0 else pInvincibleTimer p
+        
+        -- Si la vida llega a 0, cambiamos la escena a GameOver
+        newScene = if newHealth <= 0 then GameOver else scene w
+        
+    in w { player = p { pHealth = newHealth, pInvincibleTimer = newInvincibleTimer }
+         , scene = newScene 
+         }
 
 
 --Colision del jugador con los PowerUps
@@ -234,37 +239,17 @@ updateTime dt = modify $ \w -> w { time = time w + dt }
 
 -- Define los radios de colisión para el jugador y los enemigos
 playerCollisionRadius :: Float
-playerCollisionRadius = 20.0 -- Hitbox jugador
+playerCollisionRadius = 20.0 
 
 enemyCollisionRadius :: Float
-enemyCollisionRadius = 20.0 -- Hitbox enemigo
+enemyCollisionRadius = 20.0 
 
--- Comprueba si un enemigo colisiona con el jugador
-isColliding :: Player -> Enemy -> Bool
-isColliding player enemy = distance < (playerCollisionRadius + enemyCollisionRadius)
-  where
-    distance = mag $ sub (pPos player) (ePos enemy)
-
--- Maneja las colisiones entre el jugador y una lista de enemigos
-handleEnemyCollisions :: Player -> [Enemy] -> (Player, [Enemy])
-handleEnemyCollisions player enemies = 
-    let 
-        -- Separa los enemigos que colisionan de los que no
-        (collidingEnemies, nonCollidingEnemies) = partition (isColliding player) enemies
+-- Actualiza el cronómetro de invencibilidad
+updateInvincibility :: Float -> State World ()
+updateInvincibility dt = modify $ \w ->
+    let p = player w
+        currentInvincibleTime = pInvincibleTimer p
         
-        -- Calcula el daño total basado en el número de enemigos que colisionan
-        damage = length collidingEnemies
-
-        -- Reduce la vida del jugador
-        newHp = pHp player - damage
-
-        -- Actualiza el estado del jugador
-        updatedPlayer = player 
-            { pHp = newHp
-            , pDead = newHp <= 0
-            }
-    in
-        -- Si el jugador no está muerto, devuelve el jugador actualizado y los enemigos que no colisionaron
-        if not (pDead player)
-        then (updatedPlayer, nonCollidingEnemies)
-        else (player { pDead = True }, enemies) -- Si ya estaba muerto, no hagas nada
+        newTime = max 0.0 (currentInvincibleTime - dt)
+        
+    in w { player = p { pInvincibleTimer = newTime } }

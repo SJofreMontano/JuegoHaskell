@@ -1,10 +1,20 @@
-.PHONY: build run clean
+# Makefile
+PROJECT_NAME = Juego
+CABAL = cabal
+
+.PHONY: all run build clean
+
+all: run
+
 
 build:
-	cabal build
-
+	@echo "--- Compilando el proyecto (usando un solo núcleo para ahorrar RAM) ---"
+	$(CABAL) build --jobs=1
 run:
-	cabal run
+	@echo "--- Ejecutando el juego... ---"
+	$(CABAL) run
 
 clean:
-	cabal clean
+	@echo "--- Limpiando artefactos de compilación ---"
+	$(CABAL) clean
+	rm -rf dist-newstyle

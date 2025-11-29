@@ -28,8 +28,8 @@ data Player = Player
   , pMoveKeys   :: (Bool, Bool, Bool, Bool) -- WASD (W, S, A, D)
   , pShootKeys  :: (Bool, Bool, Bool, Bool) -- Flechas (Arr, Abj, Izq, Der)
   , pHasPowerUp :: Bool
-  , pHp         :: Int  
-  , pDead      :: Bool     
+  , pHealth        :: Int  
+  , pInvincibleTimer     :: Float    
   }
 
 --Enemigos

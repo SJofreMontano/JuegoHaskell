@@ -14,7 +14,7 @@ import Logic
 --Estado inicial
 initialState :: StdGen -> Maybe Picture -> Maybe Picture -> World
 initialState gen pSprite bgSprite = World 
-  { player     = Player (0, 0) 0.5 (False, False, False, False) (False, False, False, False) False 5 False
+  { player     = Player (0, 0) 0.5 (False, False, False, False) (False, False, False, False) False 5 0.0
   , enemies    = [Enemy (300, 300) 1 Grunt] 
   , bullets    = []
   , powerups   = []

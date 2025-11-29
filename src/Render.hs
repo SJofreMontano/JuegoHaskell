@@ -4,7 +4,10 @@ import Graphics.Gloss
 import Types
 import Menu (renderMenu)
 import Config (window) 
-import Graphics.Gloss.Juicy (loadJuicyPNG)
+import Graphics.Gloss.Juicy (loadJuicyPNG) -- Mantengo el import si lo planeas usar
+import qualified Data.List as L 
+
+
 --Cambio de escena
 render :: World -> Picture
 render w = 
@@ -14,13 +17,21 @@ render w =
         GameOver -> renderGameOver w
 
 
+-- Dibuja el tiempo/puntaje
+renderTime :: World -> Picture
+renderTime world = 
+    let timeValue = floor (time world)
+        timeText = "Tiempo: " ++ show timeValue ++ "s"
+    in renderText timeText (-125) 345
+
 --Render del juego cuando se esta Playing
 renderGame :: World -> Picture
-renderGame w = pictures (renderWall : renderHealth (player w): renderPlayer : renderEnemies ++ renderBullets ++ renderPowerUps ++ [renderPowerUpIndicator w])
+
+renderGame w = pictures (renderWall : renderHealth w : renderPlayer : renderEnemies ++ renderBullets ++ renderPowerUps ++ [renderPowerUpIndicator w, renderTime w])
   where
     -- MURO REDUCIDO
-    x_wall = 1200 / 2
-    y_wall = 640 / 2
+    x_wall = 1250 / 2
+    y_wall = 650 / 2
     wallPath = [ (x_wall, y_wall), (-x_wall, y_wall), (-x_wall, -y_wall), (x_wall, -y_wall) ] 
     renderWall = color white (lineLoop wallPath)
     
@@ -62,16 +73,33 @@ renderPowerUpIndicator w =
         indicatorColor = if pHasPowerUp p then green else greyN 0.3
         indicatorSize  = 30                                         
         indicatorX = 0                                              
-        indicatorY = -(720 / 2) + (indicatorSize / 2) + 10          
+        indicatorY = -(740 / 2) + (indicatorSize / 2) + 10          
     in translate indicatorX indicatorY $ color indicatorColor $ rectangleSolid indicatorSize indicatorSize
 
--- Dibuja la vida del jugador en la esquina superior izquierda
-renderHealth :: Player -> Picture
-renderHealth p =
-    translate (-580) (380) $ -- Posición en la esquina superior izquierda
-    scale 0.2 0.2 $
-    color white $
-    text ("Vidas: " ++ show (max 0 (pHp p)))
+
+-- Helper general para dibujar texto en una posición
+renderText :: String -> Float -> Float -> Picture
+renderText str x y = 
+    translate x y $ scale 0.25 0.25 $ color white $ text str
+
+-- Dibuja la salud del jugador 
+renderHealth :: World -> Picture
+renderHealth world = 
+    let hp = pHealth (player world)
+        
+        -- Configuración de los bloques de vida
+        heartSize  = 20.0
+        spacing    = 25.0
+        startX     = -520.0 -- Inicio de los bloques (después de la etiqueta "VIDA:")
+
+        labelPic = renderText "VIDA:" (-610) 340 
+        
+        heartsPic = 
+            [ translate (startX + (fromIntegral i * spacing)) 345 $ color red $ rectangleSolid heartSize heartSize
+            | i <- [0 .. hp - 1] 
+            ]
+        
+    in pictures (labelPic : heartsPic) -- Junta la etiqueta y los corazones
 
 -- Dibuja la pantalla de Game Over
 renderGameOver :: World -> Picture
