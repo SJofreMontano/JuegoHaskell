@@ -17,7 +17,8 @@ handleInput_monadic event = do
     w <- get
     case scene w of
         Menu    -> handleMenuInput event 
-        Playing -> handleGameInput event 
+        Playing -> handleGameInput event
+        GameOver -> return ()
 
 
 -- Lógica monádica, actualiza el estado de las teclas

@@ -1,5 +1,6 @@
 module Logic where
 
+import Data.List (partition)
 import Control.Monad.State
 import System.Random
 import Types
@@ -15,20 +16,30 @@ update_monadic dt = do
     w <- get
     case scene w of
         Menu    -> return ()
-        Playing -> updateGameLogic dt 
+        Playing -> updateGameLogic dt
 
 
 -- Secuencia Lógica Principal
 updateGameLogic :: Float -> State World ()
 updateGameLogic dt = do
-    movePlayer dt
-    handleSpawning dt
-    handlePowerUpSpawning dt  
-    handleShooting dt
-    moveBullets dt
-    moveEnemies dt
-    handleCollisions
-    handlePowerUpCollisions   
+    w <- get
+    -- Si el jugador está muerto, no actualizamos la lógica del juego.
+    unless (pDead (player w)) $ do
+        movePlayer dt
+        handleSpawning dt
+        handlePowerUpSpawning dt  
+        handleShooting dt
+        moveBullets dt
+        moveEnemies dt
+        handleCollisions -- Colisiones de balas con enemigos
+        handlePlayerEnemyCollisions -- Colisiones de jugador con enemigos
+        handlePowerUpCollisions
+
+    -- Comprueba si el jugador ha muerto en este frame para cambiar la escena
+    w_after_updates <- get
+    when (pDead (player w_after_updates)) $
+        modify $ \w' -> w' { scene = GameOver }
+
     updateTime dt
 
 
@@ -193,6 +204,15 @@ handleCollisions = modify $ \w ->
     
     in w { enemies = survivingEnemies, bullets = survivingBullets }
 
+--Colision entre el jugador y los enemigos
+handlePlayerEnemyCollisions :: State World ()
+handlePlayerEnemyCollisions = modify $ \w ->
+    let p = player w
+        es = enemies w
+        (updatedPlayer, remainingEnemies) = handleEnemyCollisions p es
+    in w { player = updatedPlayer, enemies = remainingEnemies }
+
+
 
 --Colision del jugador con los PowerUps
 handlePowerUpCollisions :: State World ()
@@ -211,3 +231,40 @@ handlePowerUpCollisions = modify $ \w ->
 --Incrementa el tiempo de juego
 updateTime :: Float -> State World ()
 updateTime dt = modify $ \w -> w { time = time w + dt }
+
+-- Define los radios de colisión para el jugador y los enemigos
+playerCollisionRadius :: Float
+playerCollisionRadius = 20.0 -- Hitbox jugador
+
+enemyCollisionRadius :: Float
+enemyCollisionRadius = 20.0 -- Hitbox enemigo
+
+-- Comprueba si un enemigo colisiona con el jugador
+isColliding :: Player -> Enemy -> Bool
+isColliding player enemy = distance < (playerCollisionRadius + enemyCollisionRadius)
+  where
+    distance = mag $ sub (pPos player) (ePos enemy)
+
+-- Maneja las colisiones entre el jugador y una lista de enemigos
+handleEnemyCollisions :: Player -> [Enemy] -> (Player, [Enemy])
+handleEnemyCollisions player enemies = 
+    let 
+        -- Separa los enemigos que colisionan de los que no
+        (collidingEnemies, nonCollidingEnemies) = partition (isColliding player) enemies
+        
+        -- Calcula el daño total basado en el número de enemigos que colisionan
+        damage = length collidingEnemies
+
+        -- Reduce la vida del jugador
+        newHp = pHp player - damage
+
+        -- Actualiza el estado del jugador
+        updatedPlayer = player 
+            { pHp = newHp
+            , pDead = newHp <= 0
+            }
+    in
+        -- Si el jugador no está muerto, devuelve el jugador actualizado y los enemigos que no colisionaron
+        if not (pDead player)
+        then (updatedPlayer, nonCollidingEnemies)
+        else (player { pDead = True }, enemies) -- Si ya estaba muerto, no hagas nada

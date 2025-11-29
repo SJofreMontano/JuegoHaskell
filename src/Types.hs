@@ -19,7 +19,7 @@ type Vel = (Float, Float)
 
 
 --Define escena del juego, puede estar en menu o jugando
-data Scene = Menu | Playing deriving (Eq, Show)
+data Scene = Menu | Playing | GameOver deriving (Eq, Show)
 
 --Define el jugador
 data Player = Player
@@ -27,7 +27,9 @@ data Player = Player
   , pCooldown   :: Float 
   , pMoveKeys   :: (Bool, Bool, Bool, Bool) -- WASD (W, S, A, D)
   , pShootKeys  :: (Bool, Bool, Bool, Bool) -- Flechas (Arr, Abj, Izq, Der)
-  , pHasPowerUp :: Bool                   
+  , pHasPowerUp :: Bool
+  , pHp         :: Int  
+  , pDead      :: Bool     
   }
 
 --Enemigos
@@ -60,5 +62,6 @@ data World = World
   , spawnTimer :: Float
   , puSpawnTimer :: Float
   , scene      :: Scene
-  , playerSprite :: Maybe Picture -- Nuevo campo para el sprite
+  , playerSprite :: Maybe Picture
+  , backgroundSprite :: Maybe Picture
   }

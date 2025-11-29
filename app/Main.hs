@@ -12,9 +12,9 @@ import Input
 import Logic
 
 --Estado inicial
-initialState :: StdGen -> Maybe Picture -> World
-initialState gen sprite = World 
-  { player     = Player (0, 0) 0.5 (False, False, False, False) (False, False, False, False) False
+initialState :: StdGen -> Maybe Picture -> Maybe Picture -> World
+initialState gen pSprite bgSprite = World 
+  { player     = Player (0, 0) 0.5 (False, False, False, False) (False, False, False, False) False 5 False
   , enemies    = [Enemy (300, 300) 1 Grunt] 
   , bullets    = []
   , powerups   = []
@@ -23,18 +23,20 @@ initialState gen sprite = World
   , spawnTimer = 1.0
   , puSpawnTimer = 5.0
   , scene      = Menu
-  , playerSprite = sprite
+  , playerSprite = pSprite
+  , backgroundSprite = bgSprite
   }
 
 --Funcion principal
 main :: IO ()
 main = do
     gen <- getStdGen
-    sprite <- loadJuicyPNG "assets/playerRight.png"
+    pSprite <- loadJuicyPNG "assets/playerRight.png"
+    bgSprite <- loadJuicyPNG "assets/menuBackground.png"
     play window 
          background 
          fps 
-         (initialState gen sprite)
+         (initialState gen pSprite bgSprite)
          render 
          handleInput_pure 
          update_pure
