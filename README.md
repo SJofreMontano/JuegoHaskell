@@ -44,3 +44,5 @@ make run
 | **Movimiento** | **W, A, S, D** | Permite movimiento diagonal constante. |
 | **Disparo** | **Flechas** (↑ ↓ ← →) | Disparo manual en la dirección de la flecha. |
 | **Activar Power-Up** | **ESPACIO** | Consume el Power-Up coleccionado (círculo verde). |
+
+### Pixel art hecho todo por Cristobal Skillmann :)
