@@ -192,9 +192,17 @@ handleCollisions = modify $ \w ->
             in e { eHp = eHp e - damage } 
 
         damagedEnemies = map damageEnemy allEnemies
-        survivingEnemies = filter (\e -> eHp e > 0) damagedEnemies
+        (killedEnemies, survivingEnemies) = partition (\e -> eHp e <= 0) damagedEnemies
+
+        -- Contamos los enemigos eliminados por tipo
+        killedGrunts = length $ filter (\e -> eType e == Grunt) killedEnemies
+        killedTanks  = length $ filter (\e -> eType e == Tank) killedEnemies
     
-    in w { enemies = survivingEnemies, bullets = survivingBullets }
+    in w { enemies = survivingEnemies
+         , bullets = survivingBullets
+         , gruntKills = gruntKills w + killedGrunts
+         , tankKills  = tankKills w + killedTanks
+         }
 
 -- Colisión Jugador-Enemigo y Lógica de Muerte
 handlePlayerEnemyCollision :: State World ()

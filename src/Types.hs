@@ -66,4 +66,7 @@ data World = World
   , backgroundSprite :: Maybe Picture
   , gruntSprite :: Maybe Picture
   , tankSprite  :: Maybe Picture
+  , arenaBackgroundSprite :: Maybe Picture
+  , gruntKills :: Int
+  , tankKills  :: Int
   }

@@ -12,8 +12,8 @@ import Input
 import Logic
 
 --Estado inicial
-initialState :: StdGen -> Maybe Picture -> Maybe Picture -> Maybe Picture -> Maybe Picture -> World
-initialState gen pSprite bgSprite gSprite tSprite = World 
+initialState :: StdGen -> Maybe Picture -> Maybe Picture -> Maybe Picture -> Maybe Picture -> Maybe Picture -> World
+initialState gen pSprite bgSprite gSprite tSprite arenaSprite = World 
   { player     = Player (0, 0) 0.5 (False, False, False, False) (False, False, False, False) False 5 0.0
   , enemies    = [Enemy (300, 300) 1 Grunt] 
   , bullets    = []
@@ -27,20 +27,25 @@ initialState gen pSprite bgSprite gSprite tSprite = World
   , backgroundSprite = bgSprite
   , gruntSprite = gSprite
   , tankSprite = tSprite
+  , arenaBackgroundSprite = arenaSprite
+  , gruntKills = 0
+  , tankKills  = 0
   }
 
 --Funcion principal
 main :: IO ()
 main = do
+
     gen <- getStdGen
     pSprite <- loadJuicyPNG "assets/playerRight.png"
     bgSprite <- loadJuicyPNG "assets/menuBackground.png"
     gSprite <- loadJuicyPNG "assets/grunt.png"
     tSprite <- loadJuicyPNG "assets/tank.png"
+    arenaSprite <- loadJuicyPNG "assets/arenaBackground.png"
     play window 
          background 
          fps 
-         (initialState gen pSprite bgSprite gSprite tSprite)
+         (initialState gen pSprite bgSprite gSprite tSprite arenaSprite)
          render 
          handleInput_pure 
          update_pure

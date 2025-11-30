@@ -27,8 +27,12 @@ renderTime world =
 --Render del juego cuando se esta Playing
 renderGame :: World -> Picture
 
-renderGame w = pictures (renderWall : renderHealth w : renderPlayer : renderEnemies ++ renderBullets ++ renderPowerUps ++ [renderPowerUpIndicator w, renderTime w])
+renderGame w = pictures (backgroundPicture ++ gameElements)
   where
+    backgroundPicture = case arenaBackgroundSprite w of
+        Just pic -> [pic]
+        Nothing  -> []
+    gameElements = renderWall : renderHealth w : renderKillCounters w : renderPlayer : renderEnemies ++ renderBullets ++ renderPowerUps ++ [renderPowerUpIndicator w, renderTime w]
     -- MURO REDUCIDO
     x_wall = 1250 / 2
     y_wall = 650 / 2
@@ -89,7 +93,7 @@ renderHealth world =
         spacing    = 25.0
         startX     = -520.0 -- Inicio de los bloques (después de la etiqueta "VIDA:")
 
-        labelPic = renderText "VIDA:" (-610) 340 
+        labelPic = renderText "Hp:" (-610) 340 
         
         heartsPic = 
             [ translate (startX + (fromIntegral i * spacing)) 345 $ color red $ rectangleSolid heartSize heartSize
@@ -101,6 +105,19 @@ renderHealth world =
 -- Dibuja la pantalla de Game Over
 renderGameOver :: World -> Picture
 renderGameOver w = pictures
-    [ translate 0 100 $ scale 0.5 0.5 $ color red $ text "GAME OVER"
-    , translate 0 (-50) $ scale 0.2 0.2 $ color white $ text ("Sobreviviste: " ++ show (round (time w) :: Int) ++ " segundos")
+    [ translate 0 150 $ scale 0.5 0.5 $ color red $ text "GAME OVER"
+    , translate 0 50 $ scale 0.2 0.2 $ color white $ text ("Sobreviviste: " ++ show (round (time w) :: Int) ++ " segundos")
+    , translate 0 0 $ scale 0.2 0.2 $ color white $ text ("Grunts eliminados: " ++ show (gruntKills w))
+    , translate 0 (-50) $ scale 0.2 0.2 $ color white $ text ("Tanks eliminados: " ++ show (tankKills w))
     ]
+
+-- Dibuja los contadores de enemigos eliminados
+renderKillCounters :: World -> Picture
+renderKillCounters w =
+    let gruntText = "Grunts: " ++ show (gruntKills w)
+        tankText  = "Tanks: " ++ show (tankKills w)
+        
+        gruntCounterPic = renderText gruntText 500 395
+        tankCounterPic  = renderText tankText 500 365
+        
+    in pictures [gruntCounterPic, tankCounterPic]
