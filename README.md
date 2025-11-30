@@ -29,8 +29,10 @@ sudo apt-get install freeglut3-dev libgl1-mesa-dev
 
 ## Compilación y ejecución del juego
 
-Dentro de la carpeta juego, usamos el comando make run para compilar y ejecutar el juego.
+Dentro de la carpeta juego, usamos el comando make build y make run para compilar y ejecutar el juego.
 ```bash
+make build
+
 make run
 ```
 
