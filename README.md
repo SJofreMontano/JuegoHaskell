@@ -24,7 +24,7 @@ Para compilar y ejecutar este proyecto, necesitas el entorno de Haskell y las li
 
 **Instalación de librerías en Linux (Obligatorio):**
 ```bash
-sudo apt install freeglut3-dev
+sudo apt-get install freeglut3-dev libgl1-mesa-dev
 ```
 
 ## Compilación y ejecución del juego
