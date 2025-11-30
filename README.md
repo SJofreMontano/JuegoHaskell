@@ -1,6 +1,6 @@
 # HASKELL SURVIVORS: State Monad Edition
 
-Juego estilo **Action RPG / Reverse Bullet Hell**, implementado completamente en **Haskell** utilizando la librería `gloss` y la arquitectura de la **Mónada `State`** para el manejo inmutable y secuencial del estado del juego.
+Juego estilo **Action RPG / Reverse Bullet Hell**, implementado completamente en **Haskell** utilizando la librería `gloss` y la arquitectura de la **Mónada `State`** para el manejo inmutable y secuencial del estado del juego. Por Santiago Jofré y Cristóbal Skillmann
 
 ### Características Implementadas
 
