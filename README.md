@@ -14,6 +14,10 @@ Juego estilo **Action RPG / Reverse Bullet Hell**, implementado completamente en
 
 ---
 
+### Uso de monada
+
+Arquitectura Funcional con Mónada State: El núcleo del juego se gestiona con Control.Monad.State. Esta mónada actúa como una "cadena de montaje" para el estado del juego (World). En lugar de pasar manualmente el estado de una función a otra, la mónada lo "enhebra" de forma automática y oculta. Esto permite escribir la lógica de actualización dentro de un bloque do como una secuencia de pasos claros, usando get para leer el estado y modify para aplicar cambios. El resultado es un código más limpio donde el foco está en qué cambia en cada frame, y no en cómo se pasa el estado.
+
 ## Requisitos del Sistema
 
 Para compilar y ejecutar este proyecto, necesitas el entorno de Haskell y las librerías de gráficos de tu sistema operativo.
