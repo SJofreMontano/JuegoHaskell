@@ -3,24 +3,27 @@ module Logic where
 import Control.Monad.State
 import System.Random
 import Types
-import Math 
+import Math
+import Data.List (partition)
 
-
+--Actualiza el estado
 update_pure :: Float -> World -> World
 update_pure dt oldWorld = execState (update_monadic dt) oldWorld
 
---Actualiza el estado
+-- Dispatchea al Game Over o al juego normal.
 update_monadic :: Float -> State World ()
 update_monadic dt = do
     w <- get
     case scene w of
         Menu    -> return ()
-        Playing -> updateGameLogic dt 
+        GameOver -> return ()
+        Playing -> updateGameLogic dt
 
 
 -- Secuencia Lógica Principal
 updateGameLogic :: Float -> State World ()
 updateGameLogic dt = do
+    updateInvincibility dt
     movePlayer dt
     handleSpawning dt
     handlePowerUpSpawning dt  
@@ -28,13 +31,13 @@ updateGameLogic dt = do
     moveBullets dt
     moveEnemies dt
     handleCollisions
-    handlePowerUpCollisions   
+    handlePlayerEnemyCollision
+    handlePowerUpCollisions
     updateTime dt
 
 
 -- Funciones de Lógica Pura
 
---Esta es llamada por Input.hs
 activatePowerUp :: State World ()
 activatePowerUp = modify $ \w ->
     let p = player w
@@ -61,8 +64,8 @@ movePlayer dt = modify $ \w ->
         potentialX = px + mvx * 200 * dt
         potentialY = py + mvy * 200 * dt
         
-        x_boundary = (1200 / 2) - 10 
-        y_boundary = (640 / 2) - 10
+        x_boundary = (1260 / 2) - 10 
+        y_boundary = (700 / 2) - 10
         
         clampedX = clamp (-x_boundary) x_boundary potentialX
         clampedY = clamp (-y_boundary) y_boundary potentialY
@@ -78,8 +81,8 @@ handleSpawning dt = do
     
     if currentSpawnTimer <= 0
     then do
-        let (randX, gen1) = randomR (-580 :: Float, 580 :: Float) (rng w) 
-            (randY, gen2) = randomR (-300 :: Float, 300 :: Float) gen1 
+        let (randX, gen1) = randomR (-610 :: Float, 610 :: Float) (rng w) 
+            (randY, gen2) = randomR (-330 :: Float, 330 :: Float) gen1 
             (chance, gen3) = randomR (1 :: Int, 8 :: Int) gen2
             (newEnemy, nextRng) = if chance == 1
                 then (Enemy (randX, randY) 3 Tank, gen3) 
@@ -140,18 +143,18 @@ handleShooting dt = modify $ \w ->
 moveBullets :: Float -> State World ()
 moveBullets dt = modify $ \w ->
     let 
-        movedBullets = map (updateBullet dt) (bullets w)
+        movedBullets = map updateBullet (bullets w)
         isBulletInBounds :: Bullet -> Bool
         isBulletInBounds b = 
             let (x, y) = bPos b
-                x_bound = 1200 / 2 
-                y_bound = 640 / 2 
+                x_bound = 1260 / 2 
+                y_bound = 700 / 2 
             in x < x_bound && x > (-x_bound) && y < y_bound && y > (-y_bound)
         updatedBullets = filter (\b -> bDuration b > 0 && isBulletInBounds b) movedBullets
     in w { bullets = updatedBullets }
   where
-    updateBullet :: Float -> Bullet -> Bullet
-    updateBullet dt b = b { bPos = (x + vx * dt, y + vy * dt), 
+    updateBullet :: Bullet -> Bullet
+    updateBullet b = b { bPos = (x + vx * dt, y + vy * dt), 
                             bDuration = bDuration b - dt }
       where (x, y) = bPos b; (vx, vy) = bVel b
 
@@ -189,9 +192,39 @@ handleCollisions = modify $ \w ->
             in e { eHp = eHp e - damage } 
 
         damagedEnemies = map damageEnemy allEnemies
-        survivingEnemies = filter (\e -> eHp e > 0) damagedEnemies
+        (killedEnemies, survivingEnemies) = partition (\e -> eHp e <= 0) damagedEnemies
+
+        -- kill counter
+        killedGrunts = length $ filter (\e -> eType e == Grunt) killedEnemies
+        killedTanks  = length $ filter (\e -> eType e == Tank) killedEnemies
     
-    in w { enemies = survivingEnemies, bullets = survivingBullets }
+    in w { enemies = survivingEnemies
+         , bullets = survivingBullets
+         , gruntKills = gruntKills w + killedGrunts
+         , tankKills  = tankKills w + killedTanks
+         }
+
+-- Colisión Jugador-Enemigo y Lógica de Muerte
+handlePlayerEnemyCollision :: State World ()
+handlePlayerEnemyCollision = modify $ \w ->
+    let p = player w
+        px = pPos p
+        isInvincible = pInvincibleTimer p > 0
+        collisionDist = 20.0 
+        
+        isColliding = any (\e -> mag (sub px (ePos e)) < collisionDist) (enemies w)
+        shouldTakeDamage = isColliding && not isInvincible
+
+        newHealth = if shouldTakeDamage then pHealth p - 1 else pHealth p
+        
+        newInvincibleTimer = if shouldTakeDamage then 1.0 else pInvincibleTimer p
+        
+        -- gameover
+        newScene = if newHealth <= 0 then GameOver else scene w
+        
+    in w { player = p { pHealth = newHealth, pInvincibleTimer = newInvincibleTimer }
+         , scene = newScene 
+         }
 
 
 --Colision del jugador con los PowerUps
@@ -211,3 +244,20 @@ handlePowerUpCollisions = modify $ \w ->
 --Incrementa el tiempo de juego
 updateTime :: Float -> State World ()
 updateTime dt = modify $ \w -> w { time = time w + dt }
+
+-- Define los hitbox para el jugador y los enemigos
+playerCollisionRadius :: Float
+playerCollisionRadius = 20.0 
+
+enemyCollisionRadius :: Float
+enemyCollisionRadius = 20.0 
+
+-- Actualiza el invulnerable despues de recibir daño
+updateInvincibility :: Float -> State World ()
+updateInvincibility dt = modify $ \w ->
+    let p = player w
+        currentInvincibleTime = pInvincibleTimer p
+        
+        newTime = max 0.0 (currentInvincibleTime - dt)
+        
+    in w { player = p { pInvincibleTimer = newTime } }

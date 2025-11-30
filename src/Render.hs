@@ -2,30 +2,48 @@ module Render where
 
 import Graphics.Gloss
 import Types
-import Menu (renderMenu) -- Necesario para dibujar el menú
+import Menu (renderMenu)
 import Config (window) 
+import Graphics.Gloss.Juicy (loadJuicyPNG)
+import qualified Data.List as L 
+
 
 --Cambio de escena
 render :: World -> Picture
 render w = 
     case scene w of
-        Menu    -> renderMenu w 
-        Playing -> renderGame w 
+        Menu     -> renderMenu w 
+        Playing  -> renderGame w
+        GameOver -> renderGameOver w
 
+
+-- Dibuja el tiempo/puntaje
+renderTime :: World -> Picture
+renderTime world = 
+    let timeValue = floor (time world)
+        timeText = "Tiempo: " ++ show timeValue ++ "s"
+    in renderText timeText (-125) 345
 
 --Render del juego cuando se esta Playing
 renderGame :: World -> Picture
-renderGame w = pictures (renderWall : renderPlayer : renderEnemies ++ renderBullets ++ renderPowerUps ++ [renderPowerUpIndicator w])
+
+renderGame w = pictures (backgroundPicture ++ gameElements)
   where
+    backgroundPicture = case arenaBackgroundSprite w of
+        Just pic -> [pic]
+        Nothing  -> []
+    gameElements = renderWall : renderHealth w : renderKillCounters w : renderPlayer : renderEnemies ++ renderBullets ++ renderPowerUps ++ [renderPowerUpIndicator w, renderTime w]
     -- MURO REDUCIDO
-    x_wall = 1260 / 2
-    y_wall = 700 / 2
+    x_wall = 1250 / 2
+    y_wall = 650 / 2
     wallPath = [ (x_wall, y_wall), (-x_wall, y_wall), (-x_wall, -y_wall), (x_wall, -y_wall) ] 
     renderWall = color white (lineLoop wallPath)
     
     --JUGADOR
     (px, py) = pPos (player w)
-    renderPlayer = translate px py $ color cyan $ circleSolid 10
+    renderPlayer = case playerSprite w of
+        Just pic -> translate px py pic
+        Nothing  -> translate px py $ color cyan $ circleSolid 10
                   
     --BALAS
     renderBullets = map drawBullet (bullets w)
@@ -37,19 +55,16 @@ renderGame w = pictures (renderWall : renderPlayer : renderEnemies ++ renderBull
 
     --ENEMIGOS
     renderEnemies = map drawEnemy (enemies w)
-    drawEnemy e = 
+    drawEnemy e =
         let (ex, ey) = ePos e
-            eColor   = enemyColor (eType e)
-            eSize    = enemySize (eType e)
-        in translate ex ey $ color eColor $ circleSolid eSize
-
-    enemyColor :: EnemyType -> Color
-    enemyColor Grunt = red
-    enemyColor Tank  = yellow 
-
-    enemySize :: EnemyType -> Float
-    enemySize Grunt = 10
-    enemySize Tank  = 15 
+            enemySprite = case eType e of
+                Grunt -> gruntSprite w
+                Tank  -> tankSprite w
+        in case enemySprite of
+            Just pic -> translate ex ey pic
+            Nothing  -> let eColor = case eType e of { Grunt -> red; Tank -> yellow }
+                            eSize  = case eType e of { Grunt -> 10; Tank -> 15 }
+                        in translate ex ey $ color eColor $ circleSolid eSize
 
 
 --Render PowerUp
@@ -59,5 +74,56 @@ renderPowerUpIndicator w =
         indicatorColor = if pHasPowerUp p then green else greyN 0.3
         indicatorSize  = 30                                         
         indicatorX = 0                                              
-        indicatorY = -(800 / 2) + (indicatorSize / 2) + 10          
+        indicatorY = -(740 / 2) + (indicatorSize / 2) + 10          
     in translate indicatorX indicatorY $ color indicatorColor $ rectangleSolid indicatorSize indicatorSize
+
+
+-- Helper general para dibujar texto en una posición
+renderText :: String -> Float -> Float -> Picture
+renderText str x y = 
+    translate x y $ scale 0.25 0.25 $ color white $ text str
+
+-- Dibuja la salud del jugador 
+renderHealth :: World -> Picture
+renderHealth world = 
+    let p = player world
+        hp = pHealth p
+        isInvincible = pInvincibleTimer p > 0
+        timeValue = floor (time world * 10) -- Para que el parpadeo sea rápido
+
+        -- Configuración de los bloques de vida
+        heartSize  = 20.0
+        spacing    = 25.0
+        startX     = -520.0 -- Inicio de los bloques (después de la etiqueta "VIDA:")
+
+        labelPic = renderText "Hp:" (-610) 340 
+
+        -- El color parpadea entre rojo y blanco si es invencible
+        heartColor = if isInvincible && even timeValue then white else red
+
+        heartsPic = 
+            [ translate (startX + (fromIntegral i * spacing)) 345 $ color heartColor $ rectangleSolid heartSize heartSize
+            | i <- [0 .. hp - 1] 
+            ]
+        
+    in pictures (labelPic : heartsPic) -- Junta la etiqueta y los corazones
+
+-- Dibuja la pantalla de Game Over
+renderGameOver :: World -> Picture
+renderGameOver w = pictures
+    [ translate 0 150 $ scale 0.5 0.5 $ color red $ text "GAME OVER"
+    , translate 0 50 $ scale 0.2 0.2 $ color white $ text ("Sobreviviste: " ++ show (round (time w) :: Int) ++ " segundos")
+    , translate 0 0 $ scale 0.2 0.2 $ color white $ text ("Grunts eliminados: " ++ show (gruntKills w))
+    , translate 0 (-50) $ scale 0.2 0.2 $ color white $ text ("Tanks eliminados: " ++ show (tankKills w))
+    ]
+
+-- Dibuja los contadores de enemigos eliminados
+renderKillCounters :: World -> Picture
+renderKillCounters w =
+    let gruntText = "Grunts: " ++ show (gruntKills w)
+        tankText  = "Tanks: " ++ show (tankKills w)
+        
+        gruntCounterPic = renderText gruntText 500 395
+        tankCounterPic  = renderText tankText 500 365
+        
+    in pictures [gruntCounterPic, tankCounterPic]

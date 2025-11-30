@@ -8,9 +8,12 @@ import Types
 -- Dibuja el menu
 renderMenu :: World -> Picture
 renderMenu w = 
-    let title = translate 0 100 $ scale 0.5 0.5 $ color cyan $ text "HASKELL SURVIVORS"
-        prompt = translate 0 (-50) $ scale 0.2 0.2 $ color white $ text "ENTER PARA EMPEZAR"
-    in pictures [title, prompt]
+    let textElements = pictures 
+            [translate 0 (-100) $ scale 0.2 0.2 $ color white $ text "ENTER PARA EMPEZAR"
+            ]
+    in case backgroundSprite w of
+        Just bg -> pictures [bg, textElements]
+        Nothing -> textElements
 
 -- Maneja el input del menú 
 handleMenuInput :: Event -> State World ()

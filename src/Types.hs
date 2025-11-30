@@ -1,5 +1,4 @@
-
---Tipos de datos que se usan en el juego
+-- data types
 module Types (
     Pos, Vel,
     Scene(..),
@@ -9,17 +8,18 @@ module Types (
     Bullet(..),
     PowerUpType(..),
     PowerUp(..),
-    World(..) -- Esto exporta el tipo World y todos sus campos, ¡incluyendo 'scene'!
+    World(..)
 ) where
 
 import System.Random (StdGen)
+import Graphics.Gloss (Picture)
 
 type Pos = (Float, Float)
 type Vel = (Float, Float)
 
 
---Define escena del juego, puede estar en menu o jugando
-data Scene = Menu | Playing deriving (Eq, Show)
+--Define escena del juego, puede estar en menu, jugando o game over
+data Scene = Menu | Playing | GameOver deriving (Eq, Show)
 
 --Define el jugador
 data Player = Player
@@ -27,7 +27,9 @@ data Player = Player
   , pCooldown   :: Float 
   , pMoveKeys   :: (Bool, Bool, Bool, Bool) -- WASD (W, S, A, D)
   , pShootKeys  :: (Bool, Bool, Bool, Bool) -- Flechas (Arr, Abj, Izq, Der)
-  , pHasPowerUp :: Bool                   
+  , pHasPowerUp :: Bool
+  , pHealth        :: Int  
+  , pInvincibleTimer     :: Float    
   }
 
 --Enemigos
@@ -54,10 +56,17 @@ data World = World
   { player     :: Player
   , enemies    :: [Enemy]
   , bullets    :: [Bullet]
-  , powerups   :: [PowerUp]                
-  , time       :: Float   
-  , rng        :: StdGen  
-  , spawnTimer :: Float 
-  , puSpawnTimer :: Float     
-  , scene :: Scene            
+  , powerups   :: [PowerUp]
+  , time       :: Float
+  , rng        :: StdGen
+  , spawnTimer :: Float
+  , puSpawnTimer :: Float
+  , scene      :: Scene
+  , playerSprite :: Maybe Picture
+  , backgroundSprite :: Maybe Picture
+  , gruntSprite :: Maybe Picture
+  , tankSprite  :: Maybe Picture
+  , arenaBackgroundSprite :: Maybe Picture
+  , gruntKills :: Int
+  , tankKills  :: Int
   }

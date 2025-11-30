@@ -23,6 +23,7 @@ library
     -- Dependencias que necesita la biblioteca 
     build-depends:    base ^>=4.17.2.0,
                       gloss,
+                      gloss-juicy,
                       random,
                       mtl
                       
@@ -40,6 +41,7 @@ executable Juego
     build-depends:    base ^>=4.17.2.0,
                       Juego, 
                       gloss,
+                      gloss-juicy,
                       random,
                       mtl
                       
