@@ -194,7 +194,7 @@ handleCollisions = modify $ \w ->
         damagedEnemies = map damageEnemy allEnemies
         (killedEnemies, survivingEnemies) = partition (\e -> eHp e <= 0) damagedEnemies
 
-        -- Contamos los enemigos eliminados por tipo
+        -- kill counter
         killedGrunts = length $ filter (\e -> eType e == Grunt) killedEnemies
         killedTanks  = length $ filter (\e -> eType e == Tank) killedEnemies
     
@@ -219,7 +219,7 @@ handlePlayerEnemyCollision = modify $ \w ->
         
         newInvincibleTimer = if shouldTakeDamage then 1.0 else pInvincibleTimer p
         
-        -- Si la vida llega a 0, cambiamos la escena a GameOver
+        -- gameover
         newScene = if newHealth <= 0 then GameOver else scene w
         
     in w { player = p { pHealth = newHealth, pInvincibleTimer = newInvincibleTimer }
@@ -245,14 +245,14 @@ handlePowerUpCollisions = modify $ \w ->
 updateTime :: Float -> State World ()
 updateTime dt = modify $ \w -> w { time = time w + dt }
 
--- Define los radios de colisión para el jugador y los enemigos
+-- Define los hitbox para el jugador y los enemigos
 playerCollisionRadius :: Float
 playerCollisionRadius = 20.0 
 
 enemyCollisionRadius :: Float
 enemyCollisionRadius = 20.0 
 
--- Actualiza el cronómetro de invencibilidad
+-- Actualiza el invulnerable despues de recibir daño
 updateInvincibility :: Float -> State World ()
 updateInvincibility dt = modify $ \w ->
     let p = player w

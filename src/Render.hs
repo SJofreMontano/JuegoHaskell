@@ -4,7 +4,7 @@ import Graphics.Gloss
 import Types
 import Menu (renderMenu)
 import Config (window) 
-import Graphics.Gloss.Juicy (loadJuicyPNG) -- Mantengo el import si lo planeas usar
+import Graphics.Gloss.Juicy (loadJuicyPNG)
 import qualified Data.List as L 
 
 

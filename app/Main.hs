@@ -1,17 +1,13 @@
 module Main where
-
--- Imports de librerías
 import Graphics.Gloss
 import System.Random
 import Graphics.Gloss.Juicy (loadJuicyPNG)
---Import 
 import Config
 import Types
 import Render
 import Input
 import Logic
 
---Estado inicial
 initialState :: StdGen -> Maybe Picture -> Maybe Picture -> Maybe Picture -> Maybe Picture -> Maybe Picture -> World
 initialState gen pSprite bgSprite gSprite tSprite arenaSprite = World 
   { player     = Player (0, 0) 0.5 (False, False, False, False) (False, False, False, False) False 5 0.0
@@ -32,7 +28,6 @@ initialState gen pSprite bgSprite gSprite tSprite arenaSprite = World
   , tankKills  = 0
   }
 
---Funcion principal
 main :: IO ()
 main = do
 

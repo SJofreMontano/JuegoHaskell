@@ -1,4 +1,4 @@
---Tipos de datos que se usan en el juego
+-- data types
 module Types (
     Pos, Vel,
     Scene(..),
@@ -8,7 +8,7 @@ module Types (
     Bullet(..),
     PowerUpType(..),
     PowerUp(..),
-    World(..) -- Esto exporta el tipo World y todos sus campos, ¡incluyendo 'scene'!
+    World(..)
 ) where
 
 import System.Random (StdGen)
@@ -18,7 +18,7 @@ type Pos = (Float, Float)
 type Vel = (Float, Float)
 
 
---Define escena del juego, puede estar en menu o jugando
+--Define escena del juego, puede estar en menu, jugando o game over
 data Scene = Menu | Playing | GameOver deriving (Eq, Show)
 
 --Define el jugador
